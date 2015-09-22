@@ -17,6 +17,7 @@ struct minitask_list {
 struct minitask_scheduler_t {
     int next_task_id;
     minitask_task_t *active_task;
+    ucontext_t return_ctx;
     struct minitask_list active;
     struct minitask_list waiting;
     struct {
@@ -40,3 +41,4 @@ struct minitask_task_t {
 };
 
 void timer_notify_ms(minitask_task_t*, int);
+void timer_notify_us(minitask_task_t*, int);

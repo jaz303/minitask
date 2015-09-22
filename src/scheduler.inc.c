@@ -155,6 +155,12 @@ void scheduler_sleep_ms(minitask_scheduler_t *s, int ms) {
     scheduler_switch(s);
 }
 
+void scheduler_sleep_us(minitask_scheduler_t *s, int us) {
+    scheduler_wait(s);
+    timer_notify_us(s->active_task, us);
+    scheduler_switch(s);
+}
+
 void scheduler_start(minitask_scheduler_t *s) {
     s->active_task = s->active.head;
     setcontext(&s->active_task->ctx);

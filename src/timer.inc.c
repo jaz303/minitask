@@ -86,17 +86,21 @@ void timer_notify_s(minitask_task_t *task, int s) {
     timer_insert(to);
 }
 
-void timer_notify_ms(minitask_task_t *task, int ms) {
+void timer_notify_us(minitask_task_t *task, int us) {
     struct timeout *to = timer_make_timeout(task);
     struct timeval tv;
     gettimeofday(&tv, NULL);
-    to->abstime.tv_sec = tv.tv_sec + (ms / 1000);
-    to->abstime.tv_nsec = (tv.tv_usec * 1000) + ((ms % 1000) * 1000000);
+    to->abstime.tv_sec = tv.tv_sec + (us / 1000000);
+    to->abstime.tv_nsec = (tv.tv_usec * 1000) + ((us % 1000000) * 1000);
     if (to->abstime.tv_nsec >= 1000000000) {
         to->abstime.tv_sec += (to->abstime.tv_nsec / 1000000000);
         to->abstime.tv_nsec %= 1000000000;
     }
     timer_insert(to);
+}
+
+void timer_notify_ms(minitask_task_t *task, int ms) {
+    timer_notify_us(task, ms * 1000);
 }
 
 int timer_start() {
