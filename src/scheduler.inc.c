@@ -85,6 +85,8 @@ void scheduler_start_task() {
     task->entry(task->arg);
     assert(task == s->active_task);
     task_list_remove(&s->active, task);
+    // FIXME: this is a bug, we're freeing the active call stack (!)
+    // need an elegant way of scheduling tasks/stacks for deletion
     free(task->stack);
     free(task);
     scheduler_switch(s);
