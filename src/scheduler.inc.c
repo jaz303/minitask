@@ -60,14 +60,7 @@ void scheduler_switch(minitask_scheduler_t *s) {
             scheduler_enqueue_woken_tasks(s);
             pthread_mutex_unlock(&s->wake.lock);
         } else {
-            // no waiting tasks and no active tasks;
-            // this thread can be returned to the pool, when such
-            // a thing exists...
-            pthread_mutex_lock(&s->wake.lock);
-            printf("entering idle state...\n");
-            while (1) {
-                pthread_cond_wait(&s->wake.signal, &s->wake.lock);
-            }
+            setcontext(&s->return_ctx);
         }
     }
 }
@@ -163,5 +156,8 @@ void scheduler_sleep_us(minitask_scheduler_t *s, int us) {
 
 void scheduler_start(minitask_scheduler_t *s) {
     s->active_task = s->active.head;
-    setcontext(&s->active_task->ctx);
+    swapcontext(&s->return_ctx, &s->active_task->ctx);
+    printf("scheduler exiting! active_task=%p active.head=%p\n",
+            s->active_task,
+            s->active.head);
 }

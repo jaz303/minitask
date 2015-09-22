@@ -30,5 +30,6 @@ int main(int argc, char *argv[]) {
     minitask_spawn(&task, &a2);
     minitask_spawn(&task, &a3);
     minitask_start();
+    printf("all done!\n");
     return 0;
 }
