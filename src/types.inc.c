@@ -21,7 +21,7 @@ struct minitask_scheduler_t {
     struct minitask_list active;
     struct minitask_list waiting;
     struct {
-        int pending;
+        atomic_int pending;
         pthread_mutex_t lock;
         pthread_cond_t signal;
         minitask_task_t *head;

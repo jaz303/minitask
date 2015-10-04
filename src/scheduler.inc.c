@@ -19,7 +19,7 @@ void scheduler_wakeup_task(minitask_task_t *task) {
     pthread_mutex_lock(&s->wake.lock);
     task->next_woken = s->wake.head;
     s->wake.head = task;
-    s->wake.pending = 1;
+    atomic_store(&s->wake.pending, 1);
     pthread_mutex_unlock(&s->wake.lock);
     pthread_cond_signal(&s->wake.signal);
 }
@@ -30,7 +30,7 @@ void scheduler_enqueue_woken_tasks(minitask_scheduler_t *s) {
         task_list_append(&s->active, s->wake.head);
         s->wake.head = s->wake.head->next_woken;
     }
-    s->wake.pending = 0;
+    atomic_store(&s->wake.pending, 0);
 }
 
 void scheduler_run_task(minitask_scheduler_t *s, minitask_task_t *task) {
@@ -44,7 +44,7 @@ void scheduler_run_task(minitask_scheduler_t *s, minitask_task_t *task) {
 
 void scheduler_switch(minitask_scheduler_t *s) {
     while (1) {
-        if (s->wake.pending) {
+        if (atomic_load(&s->wake.pending)) {
             pthread_mutex_lock(&s->wake.lock);
             scheduler_enqueue_woken_tasks(s);
             pthread_mutex_unlock(&s->wake.lock);
@@ -54,7 +54,7 @@ void scheduler_switch(minitask_scheduler_t *s) {
             break;
         } else if (s->waiting.count) {
             pthread_mutex_lock(&s->wake.lock);
-            while (!s->wake.pending) {
+            while (!atomic_load(&s->wake.pending)) {
                 pthread_cond_wait(&s->wake.signal, &s->wake.lock);
             }
             scheduler_enqueue_woken_tasks(s);

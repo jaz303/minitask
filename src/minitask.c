@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdatomic.h>
 
 #include "types.inc.c"
 #include "task-list.inc.c"
