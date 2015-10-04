@@ -6,6 +6,7 @@ int scheduler_init(minitask_scheduler_t *s) {
         || pthread_cond_init(&s->wake.signal, NULL) != 0) {
         return -1;
     }
+    s->wake.pending = ATOMIC_VAR_INIT(0);
     return 0;
 }
 
